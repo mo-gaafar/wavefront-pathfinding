@@ -34,6 +34,9 @@ def display_map(map=[], trajectory=[]):
     # Make color map matrix with same size as map
     map = np.array(map)
 
+    if map.size == 0:
+        return
+
     if (np.size(map) > 200):
         # print("Map too large to display. Saved to my_plot.png")
         # display map without numbering
@@ -87,6 +90,7 @@ def display_map_using_pillow(map, trajectory=[]):
 
     print("Map saved to my_plot.png")
 
+
 def print_output(value_map=np.array([]), trajectory=[]):
     """
     Function to print the output in the required format.
@@ -103,6 +107,10 @@ def print_output(value_map=np.array([]), trajectory=[]):
     # loop through the value map and adding to string
     value_map = np.array(value_map)
     trajectory = np.array(trajectory)
+
+    if value_map.size == 0 or trajectory.size == 0:
+        print("No value map or trajectory to print")
+        return 
 
     str_maze = ""
     str_maze += "value_map = \n \n"
@@ -222,27 +230,38 @@ def planner(map, start_row, start_col):
         trajectory: list of tuples of (row, col) indices
     """
 
-    value_map = []
-    trajectory = []
-
-    # find the goal location (search for 2)
-    row, col = find_goal_coordinate(map)
+    value_map = [[]]
+    trajectory = [[]]
 
     #! shift the starting location by 1 to make it one indexed as in requirements pdf
     start_row += 1
     start_col += 1
 
-    # check for a valid goal location (cant be on an obstacle)
+    # check for a valid start location (cant be on an obstacle, out of bounds, or the goal)
+    if start_row < 0 or start_row >= len(map) or start_col < 0 or start_col >= len(map[0]):
+        print("Invalid start location")
+        return value_map, trajectory
+    if map[start_row][start_col] == 1:
+        print("Invalid start location")
+        return value_map, trajectory
+    if map[start_row][start_col] == 2:
+        print("Invalid start location")
+        return value_map, trajectory
 
-    value_map = wavefront_map(map, row, col)
+    # find the goal location (search for 2)
+    row, col = find_goal_coordinate(map)
 
-    trajectory = backtracking(value_map, start_row, start_col)
+    # if valid goal location, calculate the trajectory and value map
 
-    # if valid goal location, calculate the trajectory somehow
+    if row != None and col != None:
+        # calculate the wavefront map
+        value_map = wavefront_map(map, row, col)
 
-    # else print an error message
+        # find the trajectory
+        trajectory = backtracking(value_map, start_row, start_col)
 
-    # return the value map and trajectory in required format
+    else:
+        print("No goal location found")
 
     return value_map, trajectory
 
@@ -267,13 +286,14 @@ def backtracking(map, start_row, start_col):
     # - (2,0) (2,1) (2,2) (2,3) (2,4)
     # - (3,0) (3,1) (3,2) (3,3) (3,4)
     # - (4,0) (4,1) (4,2) (4,3) (4,4)
-    #! inshallah while loop will work
+    # handle edge cases before entering while loop (starting on boundary, starting on obstacle, etc.)
 
     current_row, current_col = start_row, start_col
 
     trajectory = []
     trajectory.append((current_row, current_col))
     current_value = map[current_row][current_col]
+
     while True:
         if current_value == 2:
             break
