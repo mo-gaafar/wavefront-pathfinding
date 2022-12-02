@@ -6,18 +6,18 @@ import scipy.io
 
 def load_from_file(filename):
     """
-    #TODO: Function to load a map from a matlab file.
+    Function to load a map from a matlab file.
 
     Params:
         filename: string of filename
     Returns:
-        map: 2d numpy array of 0s and 1s
+        map: 2d numpy array of 0s and 1s and 2 (goal)
     """
     mat = scipy.io.loadmat(filename)
     return mat['map']
 
 
-def display_map(map, trajectory=[]):
+def display_map(map=[], trajectory=[]):
     """
     #TODO: Function to display a map and the calculated trajectory.
     (use a more colourful scheme to differentiate between trajectory and map)
@@ -31,14 +31,57 @@ def display_map(map, trajectory=[]):
     pass
 
 
-def print_output(value_map, trajectory):
+def print_output(value_map=np.array([]), trajectory=[]):
     """
-    #TODO: Function to print the output in the required format.
+    Function to print the output in the required format.
+
+    Params:
+        value_map: 2d numpy array of values
+        trajectory: list of tuples of (row, col) indices
+
     """
 
-    # add code here
+    # creates a formatted string of the value map and trajectory
+    # prints it to the console and saves it to a file
 
-    pass
+    # loop through the value map and adding to string
+    str_maze = ""
+    str_maze += "value_map = \n \n"
+    for row in range(value_map.shape[0]):
+        for item in range(value_map.shape[1]):
+            # left aligned formatting
+            str_maze += "{:4}".format(value_map[row, item])
+
+        str_maze += "\n"
+
+    str_maze += "\n\n"
+
+    # looping through the trajectory and adding it to the string
+    str_trajectory = ""
+    str_trajectory += "trajectory = \n \n"
+
+    for row in trajectory:
+        for item in row:
+            # left aligned formatting
+            str_trajectory += "{:4}".format(item)
+        str_trajectory += "\n"
+
+    str_out = str_maze + str_trajectory
+
+    # checks if the value map is very large and only prints it in file if it is
+    if (np.size(value_map) > 1000):
+        print("Output too large to print to console. Saved to output.txt")
+        print("")
+        with open("output.txt", "w") as text_file:
+            text_file.write(str_out)
+
+        # prints the trajectory to the console regardless..
+        print(str_trajectory)
+
+    else:
+        print(str_out)
+
+        print("Output saved to output.txt")
 
 
 def wavefront_map(map, goal_row, goal_col):
@@ -65,10 +108,10 @@ def planner(map, start_row, start_col):
         value_map: 2d numpy array of values
         trajectory: list of tuples of (row, col) indices
     """
-    value_map = []
-    trajectory = []
 
-    # add code here :)
+    # PLACEHOLDERS, delete and replace with code
+    value_map = map
+    trajectory = []
 
     # find the goal location (search for 2)
 
@@ -80,7 +123,6 @@ def planner(map, start_row, start_col):
 
     # return the value map and trajectory in required format
 
-
     return value_map, trajectory
 
 
@@ -88,6 +130,7 @@ def generate_random_map():
     """
     #TODO: Function to generate a random map. for testing purposes. 
     """
+    map = np.array([])
 
     # add code here :)
 
@@ -96,7 +139,7 @@ def generate_random_map():
 
 def main_loop():
     """
-    TODO: Main loop to get user input and call the required functions.
+    Main loop to get user input and call the required functions.
     """
 
     print("Starting user input loop...")
@@ -104,8 +147,8 @@ def main_loop():
         print("Select an option:")
         print("1. Load map from file")
         print("2. Generate random map")
-        print("3. Exit")
-        option = input("Enter option: ")  
+        print("0. Exit")
+        option = input("Enter option: ")
 
         if option == "1":
             filename = input("Enter filename: ")
@@ -124,7 +167,7 @@ def main_loop():
             display_map(value_map, trajectory)
             print_output(value_map, trajectory)
 
-        elif option == "3":
+        elif option == "0":
             break
 
         else:
@@ -136,8 +179,8 @@ def main_loop():
 
 def debug_loop():
     matrix = load_from_file("maze.mat")
-    # display_map(matrix)
-    print(matrix)
+    print_output(value_map=matrix, trajectory=[])
+
 
 main_loop()
 # debug_loop()
