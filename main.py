@@ -207,7 +207,7 @@ def wavefront_map(map, goal_row, goal_col):
 
 def planner(map, start_row, start_col):
     """
-    #TODO: Plans a path from start to goal on a given 2d map, uses wavefront map.
+    Plans a path from start to goal on a given 2d map, uses wavefront map.
 
     Params:
         map: 2d numpy array of 0s and 1s
@@ -224,6 +224,10 @@ def planner(map, start_row, start_col):
 
     # find the goal location (search for 2)
     row, col = find_goal_coordinate(map)
+
+    #! shift the starting location by 1 to make it one indexed as in requirements pdf
+    start_row += 1
+    start_col += 1
 
     # check for a valid goal location (cant be on an obstacle)
 
@@ -398,11 +402,13 @@ def debug_loop():
               [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
 
     trajectory = []
-    matrix = load_from_file("maze.mat")
+    # matrix = load_from_file("maze.mat")
+    matrix = np.array(matrix)
     matrix = matrix.astype(np.uint16)
     # print_output(value_map=matrix, trajectory=trajectory)
     row, col = find_goal_coordinate(matrix)
-    value_map, trajectory = planner(matrix, 44, 3)
+    value_map, trajectory = planner(matrix, 12, 1)
+    #! 13,2 not working so we handle zero indexing here
     # value_map = wavefront_map(matrix, row, col)
     print_output(value_map=value_map, trajectory=trajectory)
     # display_map_using_pillow(np.array(matrix),trajectory)
