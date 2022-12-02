@@ -70,7 +70,7 @@ def planner(map, start_row, start_col):
 
     # add code here :)
 
-    # find the goal location using a search algorithm (search for 2)
+    # find the goal location (search for 2)
 
     # check for a valid goal location (cant be on an obstacle)
 
@@ -79,6 +79,7 @@ def planner(map, start_row, start_col):
     # else print an error message
 
     # return the value map and trajectory in required format
+
 
     return value_map, trajectory
 
@@ -104,7 +105,7 @@ def main_loop():
         print("1. Load map from file")
         print("2. Generate random map")
         print("3. Exit")
-        option = input("Enter option: ")
+        option = input("Enter option: ")  
 
         if option == "1":
             filename = input("Enter filename: ")
