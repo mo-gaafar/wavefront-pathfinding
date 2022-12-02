@@ -134,4 +134,10 @@ def main_loop():
     pass
 
 
+def debug_loop():
+    matrix = load_from_file("maze.mat")
+    # display_map(matrix)
+    print(matrix)
+
 main_loop()
+# debug_loop()
