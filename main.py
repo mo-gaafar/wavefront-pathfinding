@@ -59,6 +59,8 @@ def display_map(map=[], trajectory=[]):
     # plt.show()
     plt.savefig('my_plot.png')
 
+    print("Map saved to my_plot.png")
+
 
 def display_map_using_pillow(map, trajectory=[]):
     # Draw the map
@@ -78,11 +80,12 @@ def display_map_using_pillow(map, trajectory=[]):
     for row, col in trajectory:
         pixels[col, row] = (255, 0, 0)
 
-    # Enlarge the image
+    # Enlarge the image nearest neighbour
     img = img.resize((img.size[0]*10, img.size[1]*10), PIL.Image.NEAREST)
 
     img.save('my_plot.png')
 
+    print("Map saved to my_plot.png")
 
 def print_output(value_map=np.array([]), trajectory=[]):
     """
@@ -360,19 +363,23 @@ def main_loop():
         if option == "1":
             filename = input("Enter filename: ")
             map = load_from_file(filename)
+            map = np.array(map)
+            map = map.astype(np.uint16)
             start_row = int(input("Enter start row: "))
             start_col = int(input("Enter start col: "))
             value_map, trajectory = planner(map, start_row, start_col)
-            display_map(value_map, trajectory)
             print_output(value_map, trajectory)
+            display_map(value_map, trajectory)
 
         elif option == "2":
             map = generate_random_map()
+            map = np.array(map)
+            map = map.astype(np.uint16)
             start_row = int(input("Enter start row: "))
             start_col = int(input("Enter start col: "))
             value_map, trajectory = planner(map, start_row, start_col)
-            display_map(value_map, trajectory)
             print_output(value_map, trajectory)
+            display_map(value_map, trajectory)
 
         elif option == "0":
             break
@@ -416,5 +423,5 @@ def debug_loop():
     # display_map(matrix, trajectory)
 
 
-# main_loop()
-debug_loop()
+main_loop()
+# debug_loop()
