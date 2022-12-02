@@ -83,6 +83,17 @@ def print_output(value_map=np.array([]), trajectory=[]):
         value_map: 2d numpy array of values
         trajectory: list of tuples of (row, col) indices
 
+<<<<<<< HEAD
+=======
+def print_output(value_map=np.array([]), trajectory=[]):
+    """
+    Function to print the output in the required format.
+
+    Params:
+        value_map: 2d numpy array of values
+        trajectory: list of tuples of (row, col) indices
+
+>>>>>>> 41a831e6089fe088072b4388168d4e03a2a2931d
     """
 
     # creates a formatted string of the value map and trajectory
@@ -224,10 +235,15 @@ def main_loop():
 def debug_loop():
     matrix = load_from_file("maze.mat")
 <<<<<<< HEAD
+<<<<<<< HEAD
     # display_map(matrix)
     trajectory = [[8,2],[8,3]]
     display_map_using_pillow(np.array(matrix),trajectory)
     # print(matrix)
+=======
+    print_output(value_map=matrix, trajectory=[])
+
+>>>>>>> 41a831e6089fe088072b4388168d4e03a2a2931d
 =======
     print_output(value_map=matrix, trajectory=[])
 
