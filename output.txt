@@ -246,6 +246,8 @@ value_map =
 
 trajectory = 
  
+  46   5
+  45   5
   44   5
   43   5
   42   5

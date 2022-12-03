@@ -55,7 +55,7 @@ def display_map(map=[], trajectory=[]):
 
     # Draw the trajectory
     for row, col in trajectory:
-        color_map[row, col] = [1, 0, 0]
+        color_map[row, col] = [1, 0, 0] if map[row, col] != 2 else [0, 1, 0]
 
     # Plot the map as a table
     table = plt.table(cellText=map, cellColours=color_map,
@@ -91,8 +91,10 @@ def display_map_using_pillow(map, trajectory=[]):
                 pixels[i, j] = (255, 255, 255)
 
     # Draw the trajectory
-    for row, col in trajectory:
-        pixels[col, row] = (255, 0, 0)
+    for row, col in trajectory[:-1]:
+        pixels[col, row] =  (255, 0, 0)
+    
+
 
     # Enlarge the image nearest neighbour
     img = img.resize((img.size[0]*10, img.size[1]*10), PIL.Image.NEAREST)
@@ -329,8 +331,13 @@ def generate_random_map():
     #TODO: Function to generate a random map. for testing purposes. 
     """
     map = np.array([])
-
-    # add code here :)
+    rows = 20
+    cols = 20
+    map = np.random.randint(0, 2, (rows, cols))
+    
+    # set the goal location
+    map[rows-1][cols-1] = 2
+    # print_output(value_map=map, trajectory=[(0, 0)])
 
     return map
 
@@ -382,6 +389,7 @@ def main_loop():
 def debug_loop():
     # matrix = load_from_file("maze.mat")
     matrix = notAllSol
+    # matrix = generate_random_map()
 
     trajectory = []
     # matrix = load_from_file("maze.mat")
@@ -396,5 +404,5 @@ def debug_loop():
     display_map(value_map, trajectory)
 
 
-# main_loop()
-debug_loop()
+main_loop()
+# debug_loop()
