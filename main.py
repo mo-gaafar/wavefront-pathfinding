@@ -373,6 +373,11 @@ def main_loop():
             start_row = int(input("Enter start row: "))
             start_col = int(input("Enter start col: "))
             value_map, trajectory = planner(map, start_row, start_col)
+            while trajectory == [[]] or trajectory == []:
+                map = generate_random_map()
+                map = np.array(map)
+                map = map.astype(np.uint16)
+                value_map, trajectory = planner(map, start_row, start_col)
             print_output(value_map, trajectory)
             display_map(value_map, trajectory)
 
