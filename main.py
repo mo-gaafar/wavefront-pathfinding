@@ -21,7 +21,7 @@ def load_from_file(filename):
     return np.array(mat['map'])
 
 
-def display_map(map=[], trajectory=[]):
+def display_map(map=[], trajectory=[], start_row=0,start_col=0):
     """
     Function to display a map and the calculated trajectory.
     (use a more colourful scheme to differentiate between trajectory and map)
@@ -36,10 +36,10 @@ def display_map(map=[], trajectory=[]):
     if map.size == 0: 
         return
 
-    if (np.size(map) > 500):
+    if (np.size(map) > 600):
         # print("Map too large to display. Saved to my_plot.png")
         # display map without numbering
-        display_map_using_pillow(map, trajectory)
+        display_map_using_pillow(map, trajectory, start_row, start_col)
         return
 
     # Make color map matrix with same size as map
@@ -57,6 +57,7 @@ def display_map(map=[], trajectory=[]):
     for row, col in trajectory:
         color_map[row, col] = [1, 0, 0] if map[row, col] != 2 else [0, 1, 0]
 
+    color_map[start_row, start_col] = [0, 0, 1]
     # Plot the map as a table
     table = plt.table(cellText=map, cellColours=color_map,
                       loc=(0, 0), cellLoc='center')
@@ -67,7 +68,7 @@ def display_map(map=[], trajectory=[]):
     print("Map saved to my_plot.png")
 
 
-def display_map_using_pillow(map, trajectory=[]):
+def display_map_using_pillow(map, trajectory=[], start_row=0, start_col=0):
     """
     Function to display a map and the calculated trajectory.
     (use a more colourful scheme to differentiate between trajectory and map)
@@ -95,7 +96,7 @@ def display_map_using_pillow(map, trajectory=[]):
         pixels[col, row] =  (255, 0, 0)
     
 
-
+    pixels[start_col, start_row] = (0, 0, 255)
     # Enlarge the image nearest neighbour
     img = img.resize((img.size[0]*10, img.size[1]*10), PIL.Image.NEAREST)
 
@@ -298,7 +299,7 @@ def backtracking(map, start_row, start_col):
 
     trajectory = []
     if map[start_row][start_col] == 0:
-        print("No Solutin")
+        print("No Solution")
         return trajectory
     current_row, current_col = start_row, start_col
 
@@ -326,13 +327,11 @@ def backtracking(map, start_row, start_col):
     return trajectory
 
 
-def generate_random_map():
+def generate_random_map(rows,cols):
     """
-    #TODO: Function to generate a random map. for testing purposes. 
+    Function to generate a random map. for testing purposes. 
     """
     map = np.array([])
-    rows = 20
-    cols = 20
     map = np.random.randint(0, 2, (rows, cols))
     
     # set the goal location
@@ -360,26 +359,29 @@ def main_loop():
             map = load_from_file(filename)
             map = np.array(map)
             map = map.astype(np.uint16)
+            print(map.shape)
             start_row = int(input("Enter start row: "))
             start_col = int(input("Enter start col: "))
             value_map, trajectory = planner(map, start_row, start_col)
             print_output(value_map, trajectory)
-            display_map(value_map, trajectory)
+            display_map(value_map, trajectory,start_row,start_col)
 
         elif option == "2":
-            map = generate_random_map()
+            rows = int(input("Enter map rows size: "))
+            cols = int(input("Enter map columns size: "))
+            map = generate_random_map(rows, cols)
             map = np.array(map)
             map = map.astype(np.uint16)
             start_row = int(input("Enter start row: "))
             start_col = int(input("Enter start col: "))
             value_map, trajectory = planner(map, start_row, start_col)
             while trajectory == [[]] or trajectory == []:
-                map = generate_random_map()
+                map = generate_random_map(rows, cols)
                 map = np.array(map)
                 map = map.astype(np.uint16)
                 value_map, trajectory = planner(map, start_row, start_col)
             print_output(value_map, trajectory)
-            display_map(value_map, trajectory)
+            display_map(value_map, trajectory,start_row+1,start_col+1)
 
         elif option == "0":
             break
@@ -393,7 +395,7 @@ def main_loop():
 
 def debug_loop():
     # matrix = load_from_file("maze.mat")
-    matrix = notAllSol
+    matrix = nosolution
     # matrix = generate_random_map()
 
     trajectory = []
@@ -402,11 +404,11 @@ def debug_loop():
     matrix = matrix.astype(np.uint16)
     # print_output(value_map=matrix, trajectory=trajectory)
     row, col = find_goal_coordinate(matrix)
-    value_map, trajectory = planner(matrix, 0, 9)
+    value_map, trajectory = planner(matrix, 3, 5)
     #! 13,2 not working so we handle zero indexing here
     # value_map = wavefront_map(matrix, row, col)
     print_output(value_map=value_map, trajectory=trajectory)
-    display_map(value_map, trajectory)
+    display_map(value_map, trajectory,3,5)
 
 
 main_loop()
