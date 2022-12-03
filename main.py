@@ -4,7 +4,7 @@ import matplotlib.image as mpimg
 import scipy.io
 import PIL
 from PIL import ImageDraw
-from map import initial_map
+from map import initial_map, nosolution, notAllSol, diagonalSol
 
 
 def load_from_file(filename):
@@ -23,7 +23,7 @@ def load_from_file(filename):
 
 def display_map(map=[], trajectory=[]):
     """
-    #TODO: Function to display a map and the calculated trajectory.
+    Function to display a map and the calculated trajectory.
     (use a more colourful scheme to differentiate between trajectory and map)
 
     Params:
@@ -31,52 +31,63 @@ def display_map(map=[], trajectory=[]):
         trajectory: list of tuples of (row, col) indices
     """
 
-    # Make color map matrix with same size as map
     map = np.array(map)
 
-    if map.size == 0:
+    if map.size == 0: 
         return
 
-    if (np.size(map) > 200):
+    if (np.size(map) > 500):
         # print("Map too large to display. Saved to my_plot.png")
         # display map without numbering
         display_map_using_pillow(map, trajectory)
         return
 
+    # Make color map matrix with same size as map
     color_map = np.zeros((map.shape[0], map.shape[1], 3))
     for row in range(map.shape[0]):
         for col in range(map.shape[1]):
-            if map[row, col] == 1:
+            if map[row, col] == 1: # if the pixel is an obstacle colour it grey
                 color_map[row, col] = [145/255, 145/255, 145/255]
-            elif map[row, col] == 2:
+            elif map[row, col] == 2: # if the pixel is the goal colour it green
                 color_map[row, col] = [0, 1, 0]
-            else:
+            else: # if the pixel is a free space colour it white
                 color_map[row, col] = [1, 1, 1]
 
+    # Draw the trajectory
     for row, col in trajectory:
         color_map[row, col] = [1, 0, 0]
 
+    # Plot the map as a table
     table = plt.table(cellText=map, cellColours=color_map,
                       loc=(0, 0), cellLoc='center')
     plt.axis('off')
-    # plt.show()
     plt.savefig('my_plot.png')
+    plt.show()
 
     print("Map saved to my_plot.png")
 
 
 def display_map_using_pillow(map, trajectory=[]):
+    """
+    Function to display a map and the calculated trajectory.
+    (use a more colourful scheme to differentiate between trajectory and map)
+    
+    Params:
+        map: 2d numpy array of the map
+        trajectory: list of tuples of (row, col) indices
+    """
+
     # Draw the map
     img = PIL.Image.new('RGB', (map.shape[1], map.shape[0]), color='white')
     pixels = img.load()
 
     for i in range(img.size[0]):
         for j in range(img.size[1]):
-            if map[j, i] == 1:
-                pixels[i, j] = (145, 145, 145)
-            elif map[j, i] == 2:
-                pixels[i, j] = (0, 255, 0)
-            else:
+            if map[j, i] == 1: # if the pixel is an obstacle colour it grey
+                pixels[i, j] = (145, 145, 145) 
+            elif map[j, i] == 2: # if the pixel is the goal colour it green
+                pixels[i, j] = (0, 255, 0) 
+            else: # if the pixel is a free space colour it white
                 pixels[i, j] = (255, 255, 255)
 
     # Draw the trajectory
@@ -86,6 +97,7 @@ def display_map_using_pillow(map, trajectory=[]):
     # Enlarge the image nearest neighbour
     img = img.resize((img.size[0]*10, img.size[1]*10), PIL.Image.NEAREST)
 
+    # Save the image
     img.save('my_plot.png')
 
     print("Map saved to my_plot.png")
@@ -151,22 +163,6 @@ def print_output(value_map=np.array([]), trajectory=[]):
         print("Output saved to output.txt")
 
 
-def helper(map, prevValue, currentRow, currentCol):
-
-    # if map[currentRow][currentCol] == 1:
-    #     return
-
-    # if map[currentRow][currentCol] != 2:
-    #     map[currentRow][currentCol] = prevValue
-
-    # moves = [[0, 1], [0, -1], [1, 0], [-1, 0],
-    #          [1, 1], [1, -1], [-1, 1], [-1, -1]]
-
-    # queue = []
-    # queue.append
-    pass
-
-
 def find_goal_coordinate(map):
     """
     Function to find the goal coordinate in the map.
@@ -189,14 +185,22 @@ def find_goal_coordinate(map):
 def wavefront_map(map, goal_row, goal_col):
     """
     Function to calculate the wavefront map from a given goal location.
+
+    Params:
+        map: 2d numpy array of 0s and 1s
+        goal_row: int of goal row index
+        goal_col: int of goal col index
+    Returns:
+        map: 2d numpy array of the wavefront map
     """
 
     moves = [[0, 1], [0, -1], [1, 0], [-1, 0],
              [1, 1], [1, -1], [-1, 1], [-1, -1]]
 
     queue = []
+
     # Start from the goal location (row,col,prevValue)
-    queue.append([goal_row, goal_col, 2])
+    queue.append([goal_row, goal_col, 2]) 
 
     while queue:
         current_row, current_col, prev_value = queue.pop(0)
@@ -205,7 +209,7 @@ def wavefront_map(map, goal_row, goal_col):
             new_col = current_col + move[1]
 
             # Check if the new location is not 1 or already filled with a value (not 0) and is within the map
-            if map[new_row][new_col] == 1 or map[new_row][new_col] != 0 or new_row < 0 or new_row >= len(map) or new_col < 0 or new_col >= len(map[0]):
+            if  new_row < 0 or new_row >= len(map) or new_col < 0 or new_col >= len(map[0]) or map[new_row][new_col] == 1 or map[new_row][new_col] != 0:
                 continue
 
             # Add the new location to the queue
@@ -247,6 +251,7 @@ def planner(map, start_row, start_col):
     if map[start_row][start_col] == 2:
         print("Invalid start location")
         return value_map, trajectory
+    
 
     # find the goal location (search for 2)
     row, col = find_goal_coordinate(map)
@@ -276,84 +281,47 @@ def backtracking(map, start_row, start_col):
     # relative neighbor moves are ordered by priority
     # moves = [[-1, 0], [0, 1], [1, 0], [0, -1], [-1, 1], [1, 1], [1, -1], [-1, -1]]
     moves = [[-1, -1], [1, -1], [1, 1], [-1, 1],
-             [0, -1], [1, 0], [0, 1], [-1, 0]]
+             [0,  -1], [1,  0], [0, 1], [-1, 0]]
 
     # priority: up, right, down, left, upper right, lower right, lower left, upper left. respectively
 
     # ------------------------------
-    # - (0,0) (0,1) (0,2) (0,3) (0,4)c
+    # - (0,0) (0,1) (0,2) (0,3) (0,4)
     # - (1,0) (1,1) (1,2) (1,3) (1,4)
     # - (2,0) (2,1) (2,2) (2,3) (2,4)
     # - (3,0) (3,1) (3,2) (3,3) (3,4)
     # - (4,0) (4,1) (4,2) (4,3) (4,4)
+    # ------------------------------
     # handle edge cases before entering while loop (starting on boundary, starting on obstacle, etc.)
 
+    trajectory = []
+    if map[start_row][start_col] == 0:
+        print("No Solutin")
+        return trajectory
     current_row, current_col = start_row, start_col
 
-    trajectory = []
-    trajectory.append((current_row, current_col))
-    current_value = map[current_row][current_col]
+    trajectory.append((current_row, current_col)) # add the starting location to the trajectory
+    current_value = map[current_row][current_col] # get the value of the starting location
 
-    while True:
-        if current_value == 2:
-            break
-        current_value = map[current_row][current_col]
-        minRow = current_row
-        minCol = current_col
-        for move in moves:
-            new_row = current_row + move[0]
-            new_col = current_col + move[1]
+    while current_value != 2: # while the current location is not the goal location
+        current_value = map[current_row][current_col] # get the value of the current location
+        minRow = current_row 
+        minCol = current_col 
+        for move in moves: # for each neighbor
+            new_row = current_row + move[0] # get the new row
+            new_col = current_col + move[1] # get the new col
 
             if new_row < 0 or new_row >= len(map) or new_col < 0 or new_col >= len(map[0]) or map[new_row][new_col] == 1:
-                continue
+                continue # if the new location is out of bounds or an obstacle, skip it
 
-            if current_value >= map[new_row][new_col]:
-                current_value = map[new_row][new_col]
-                minRow, minCol = new_row, new_col
-        current_row, current_col = minRow, minCol
-        trajectory.append((current_row, current_col))
+            if current_value >= map[new_row][new_col]: # if the current value is greater than or equal to the new value assign the new value to the current value
+                current_value = map[new_row][new_col] 
+                minRow, minCol = new_row, new_col # assign the new location to the min location
+        
+        current_row, current_col = minRow, minCol # make the current location be the location with the lowest value
+        trajectory.append((current_row, current_col)) # add the current location to the trajectory
 
     return trajectory
-
-    # get all neighbors and find minimum value
-
-    # neighbors = []
-    # idx = 0
-    # min_neighbor_val = 9999999999
-    # for move in moves:
-    #     row = move[0] + current_row
-    #     col = move[1] + current_col
-
-    #     if row < 0 or row >= len(map) or col < 0 or col >= len(map[0]):
-    #         map_val = 9999999999
-    #     else:
-    #         map_val = map[row][col]
-
-    #     neighbors.append(map_val)
-
-    #     if min_neighbor_val < neighbors[idx] and neighbors[idx] != 1:
-    #         min_neighbor_val = neighbors[idx]
-
-    #     idx += 1
-
-    # # find first occurence of min in list
-    # optimimum_min_idx = neighbors.index(min_neighbor_val)
-    # print("=====================================")
-    # print(optimimum_min_idx)
-    # print("=====================================")
-    # # update current point and append to trajectory
-
-    # print("=====================================")
-    # print(current_row)
-    # print("=====================================")
-    # current_row += moves[optimimum_min_idx][0]
-    # current_col += moves[optimimum_min_idx][1]
-
-    # trajectory.append([current_row, current_col])
-
-    # # terminate after reaching goal
-    # if map[current_row][current_col] == 2:
-    #     return trajectory
 
 
 def generate_random_map():
@@ -413,20 +381,7 @@ def main_loop():
 
 def debug_loop():
     # matrix = load_from_file("maze.mat")
-    matrix = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-              [1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1],
-              [1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 2, 0, 1],
-              [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1],
-              [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1],
-              [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1],
-              [1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1],
-              [1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-              [1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-              [1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-              [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
-              [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1],
-              [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1],
-              [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
+    matrix = notAllSol
 
     trajectory = []
     # matrix = load_from_file("maze.mat")
@@ -434,14 +389,12 @@ def debug_loop():
     matrix = matrix.astype(np.uint16)
     # print_output(value_map=matrix, trajectory=trajectory)
     row, col = find_goal_coordinate(matrix)
-    value_map, trajectory = planner(matrix, 12, 1)
+    value_map, trajectory = planner(matrix, 0, 9)
     #! 13,2 not working so we handle zero indexing here
     # value_map = wavefront_map(matrix, row, col)
     print_output(value_map=value_map, trajectory=trajectory)
-    # display_map_using_pillow(np.array(matrix),trajectory)
-    display_map_using_pillow(value_map, trajectory)
-    # display_map(matrix, trajectory)
+    display_map(value_map, trajectory)
 
 
-main_loop()
-# debug_loop()
+# main_loop()
+debug_loop()
