@@ -4,8 +4,14 @@ import matplotlib.image as mpimg
 import scipy.io
 import PIL
 from PIL import ImageDraw
-from map import initial_map, nosolution, notAllSol, diagonalSol
 
+'''
+Developed by:
+    Aly Khaled
+    Mariam Aly
+    Maryam Moataz
+    Mohamed Nasser
+'''
 
 def load_from_file(filename):
     """
@@ -360,6 +366,7 @@ def main_loop():
         print("Select an option:")
         print("1. Load map from file")
         print("2. Generate random map")
+        print("3. Use hardcoded map")
         print("0. Exit")
         option = input("Enter option: ")
 
@@ -415,6 +422,39 @@ def main_loop():
             # print the output
             print_output(value_map, trajectory)
             display_map(value_map, trajectory, start_row+1, start_col+1)
+
+        elif option == "3":
+            # use hardcoded map for testing
+            map =  [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                [1, 0, 0, 0, 0, 0, 1, 1, 0 ,0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1],
+                [1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 2, 0, 1],
+                [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1],
+                [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 ,1, 0, 0, 0, 1],
+                [1 ,0, 0, 0, 0, 0, 0, 0 ,0, 0 ,0 ,0, 0, 0, 1, 1, 0, 0 ,0, 1],
+                [1, 0 ,0 ,0 ,1, 1, 1, 1, 1, 0 ,0 ,0 ,0, 0, 1 ,1, 0, 0, 0, 1],
+                [1, 0 ,0, 0, 1, 1, 1, 1, 1, 0 ,0 ,0 ,0, 0, 0 ,0, 0, 0 ,0, 1],
+                [1, 0, 0, 0, 0, 0, 0, 1, 1, 0 ,0 ,0, 0 ,0, 0 ,0, 0, 0, 0, 1],
+                [1, 0 ,0, 0 ,0, 0 ,0 ,1 ,1, 0 ,0 ,0 ,0 ,0, 0 ,0, 0 ,0 ,0, 1],
+                [1, 0, 0, 0 ,0, 0, 0, 0, 0, 0 ,0, 0 ,0 ,0 ,1 ,0, 0, 0 ,0, 1],
+                [1, 0 ,0, 0 ,0, 0, 0 ,0, 0 ,0, 0, 0, 0, 1 ,1 ,0, 0 ,0, 0 ,1],
+                [1, 0, 0, 0 ,0, 0, 0, 0, 0 ,0 ,0, 0 ,1 ,1, 1 ,0, 0, 0, 0 ,1],
+                [1 ,1 ,1, 1 ,1 ,1, 1, 1, 1 ,1 ,1 ,1 ,1, 1 ,1 ,1, 1, 1, 1 ,1]
+            ]
+
+            # allocate 16 bits to avoid overflow
+            map = np.array(map)
+            map = map.astype(np.uint16)
+
+            # get the start location
+            start_row = int(input("Enter start row: "))
+            start_col = int(input("Enter start col: "))
+
+            # call the planner
+            value_map, trajectory = planner(map, start_row, start_col)
+
+            # print the output
+            print_output(value_map, trajectory)
+            display_map(value_map, trajectory, start_row, start_col)
 
         elif option == "0":
             break
