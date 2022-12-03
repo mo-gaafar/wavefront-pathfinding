@@ -1,5 +1,17 @@
 # Wavefront pathfinding maze solver
-Given a pixel map, this algorithm finds the shortest possible path between two points
+
+Given a pixel map, this algorithm finds the shortest possible path between two points using wavefront algorithm.
+
+## Features
+
+* Finds the shortest path between two points
+* Randomly generates mazes
+* Low memory usage and fast execution
+* Can be used to solve any maze
+
+## Documentation
+
+The report is available [here](./report.pdf)
 
 ## How to run
 
@@ -23,6 +35,10 @@ Given a pixel map, this algorithm finds the shortest possible path between two p
     ```
 
 5. Run the program
+
+    ```bash
+    python main.py
+    ```
 
 ## Team Members
 
